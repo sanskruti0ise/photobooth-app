@@ -11,6 +11,12 @@ function Camera() {
   const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null); // Reference for the photo strip
 
+  // Function to play the click sound
+  const playClickSound = () => {
+    const clickAudio = new Audio("/click-sound.mp3"); // Your click sound file in public folder
+    clickAudio.play();
+  };
+
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
       .then((stream) => {
@@ -150,21 +156,30 @@ function Camera() {
       {/* Filter Selection */}
       <div className="flex gap-4 mt-3 flex-wrap justify-center">
         <button
-          onClick={() => setSelectedFilter("sepia")}
+          onClick={() => {
+            playClickSound(); // Play sound on filter click
+            setSelectedFilter("sepia");
+          }}
           disabled={filterLocked}
           className={`px-4 py-2 bg-gradient-to-r from-orange-400 via-yellow-300 to-orange-500 text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
           Sepia
         </button>
         <button
-          onClick={() => setSelectedFilter("grayscale")}
+          onClick={() => {
+            playClickSound(); // Play sound on filter click
+            setSelectedFilter("grayscale");
+          }}
           disabled={filterLocked}
           className={`px-4 py-2 bg-gradient-to-r from-gray-600 via-gray-500 to-gray-700 text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
           B&W
         </button>
         <button
-          onClick={() => setSelectedFilter("")}
+          onClick={() => {
+            playClickSound(); // Play sound on filter click
+            setSelectedFilter("");
+          }}
           disabled={filterLocked}
           className={`px-4 py-2 bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
@@ -173,10 +188,12 @@ function Camera() {
       </div>
 
       <button
-        onClick={startPhotoStrip}
+        onClick={() => {
+          playClickSound(); // Play sound on button click
+          startPhotoStrip();
+        }}
         disabled={isRunning || !selectedFilter}
-        className="mt-2 px-6 py-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-white font-extrabold rounded-xl shadow-md hover:shadow-lg hover:brightness-110 transition duration-300"
-      >
+        className="mt-2 px-6 py-2 bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-white font-extrabold rounded-xl shadow-md hover:shadow-lg hover:brightness-110 transition duration-300">
         📸 Start Photo Strip
       </button>
 
@@ -185,7 +202,7 @@ function Camera() {
       {/* Photo Strip Display */}
       {photos.length === 4 && (
         <div ref={photoStripRef} className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-[160px] animate-drop-in">
-          <h2 className="text-center text-lg font-extrabold text-purple-700 mb-4">Your Strip</h2>
+          <h2 className="text-center text-lg font-extrabold text-purple-700 mb-4">Your Photo Strip: </h2>
           <div className="flex flex-col items-center gap-2">
             {photos.map((photo, index) => (
               <div
@@ -206,14 +223,19 @@ function Camera() {
           </div>
 
           <button
-            onClick={resetStrip}
-            className="mt-6 w-full px-4 py-2 bg-gradient-to-r from-red-500 via-red-400 to-red-600 text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
-          >
+            onClick={() => {
+              playClickSound(); // Play sound on reset button click
+              resetStrip();
+            }}
+            className="mt-6 w-full px-4 py-2 bg-gradient-to-r from-red-500 via-red-400 to-red-600 text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"          >
             🔄 Start Over
           </button>
 
           <button
-            onClick={downloadStrip}
+            onClick={() => {
+              playClickSound(); // Play sound on download button click
+              downloadStrip();
+            }}
             className="mt-4 w-full px-4 py-2 bg-gradient-to-r from-green-500 via-green-400 to-green-600 text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
           >
             ⬇️ Download Strip
