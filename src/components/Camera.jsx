@@ -104,7 +104,7 @@ function Camera() {
     stripCanvas.height = (height * 4) + 60; // Added margin between photos
 
     const ctx = stripCanvas.getContext("2d");
-    ctx.fillStyle = "#9b4dca"; // Purple background
+    ctx.fillStyle = "#604D74"; // Purple background
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
     // Draw the photos with margin between them
