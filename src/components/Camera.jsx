@@ -9,8 +9,8 @@ function Camera() {
   const [isRunning, setIsRunning] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
-  const photoStripRef = useRef(null);
-  const clickSound = new Audio("/click.mp3");
+  const photoStripRef = useRef(null); // Reference for the photo strip
+  const audioRef = useRef(new Audio("/click-sound.mp3")); // Path to your click sound file
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -39,7 +39,6 @@ function Camera() {
       }
 
       setCountdown(null);
-      clickSound.play();
       takePhoto();
 
       setMessage("📸 Photo clicked!");
@@ -53,6 +52,8 @@ function Camera() {
 
     setMessage("All done!");
     setIsRunning(false);
+
+    // Scroll to the photo strip
     if (photoStripRef.current) {
       photoStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -76,6 +77,9 @@ function Camera() {
     ctx.drawImage(video, 0, 0);
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
+
+    // Play the click sound
+    audioRef.current.play();
   };
 
   const resetStrip = () => {
@@ -100,22 +104,24 @@ function Camera() {
 
     const width = imgElements[0].width;
     const height = imgElements[0].height;
-    stripCanvas.width = width + 40;
-    stripCanvas.height = (height * 4) + 60;
+    stripCanvas.width = width + 40; // Added margin on all sides (20px)
+    stripCanvas.height = (height * 4) + 60; // Added margin between photos
 
     const ctx = stripCanvas.getContext("2d");
-    ctx.fillStyle = "#5F3451";
+    ctx.fillStyle = "#5F3451"; // Updated to new purple color
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
+    // Draw the photos with margin between them
     imgElements.forEach((img, i) => {
-      const yPosition = i * (height + 10) + 20;
+      const yPosition = i * (height + 10) + 20; // 10px margin between photos
       ctx.drawImage(img, 20, yPosition);
     });
 
+    // Add a date text at the bottom
     ctx.font = "bold 14px Poppins";
     ctx.fillStyle = "#fff";
     const date = new Date().toLocaleDateString();
-    ctx.fillText(`Date: ${date}`, 20, height * 4 + 35);
+    ctx.fillText(`Date: ${date}`, 20, height * 4 + 35); // Adjusted for margin
 
     const link = document.createElement("a");
     link.download = "photo-strip.png";
@@ -124,7 +130,7 @@ function Camera() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-[#F9F5F0] font-poppins pt-4 px-4">
+    <div className="flex flex-col items-center justify-start min-h-screen bg-[#F0E6D6] font-poppins pt-4 px-4">
       <div className="relative flex flex-col items-center justify-center w-full max-w-md">
         <video
           ref={videoRef}
@@ -139,7 +145,7 @@ function Camera() {
         )}
 
         {message && countdown === null && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#5F3451] text-xl font-bold animate-bounce">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xl font-bold animate-bounce">
             {message}
           </div>
         )}
@@ -173,7 +179,7 @@ function Camera() {
       <button
         onClick={startPhotoStrip}
         disabled={isRunning || !selectedFilter}
-        className="mt-2 px-6 py-2 bg-[#5F3451] text-white font-extrabold rounded-xl shadow-md hover:shadow-lg hover:brightness-110 transition duration-300"
+        className="mt-2 px-6 py-2 bg-[#B899A8] text-white font-extrabold rounded-xl shadow-md hover:shadow-lg hover:brightness-110 transition duration-300"
       >
         📸 Start Photo Strip
       </button>
@@ -205,14 +211,14 @@ function Camera() {
 
           <button
             onClick={resetStrip}
-            className="mt-6 w-full px-4 py-2 bg-red-400 text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
+            className="mt-6 w-full px-4 py-2 bg-[#B899A8] text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
           >
             🔄 Start Over
           </button>
 
           <button
             onClick={downloadStrip}
-            className="mt-4 w-full px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
+            className="mt-4 w-full px-4 py-2 bg-[#B899A8] text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
           >
             ⬇️ Download Strip
           </button>
