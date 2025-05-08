@@ -11,7 +11,7 @@ function Camera() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
 
-  const clickSound = new Audio("/click.mp3"); // Ensure this file exists in the public folder
+  const clickSound = new Audio("/click-sound.mp3"); // Ensure this file exists in the public folder
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
