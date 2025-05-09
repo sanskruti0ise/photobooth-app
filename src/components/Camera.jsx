@@ -135,7 +135,7 @@ function Camera() {
         <video
           ref={videoRef}
           autoPlay
-          className={`rounded-xl shadow-xl w-full max-w-full max-h-[80vh] aspect-video border-4 sm:border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
+          className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
         />
 
         {countdown !== null && (
@@ -152,7 +152,7 @@ function Camera() {
       </div>
 
       {/* Filter Selection */}
-      <div className="flex gap-4 mt-3 flex-wrap justify-center w-full max-w-md">
+      <div className="flex gap-4 mt-3 flex-wrap justify-center">
         <button
           onClick={() => setSelectedFilter("sepia")}
           disabled={filterLocked}
@@ -188,7 +188,7 @@ function Camera() {
 
       {/* Photo Strip Display */}
       {photos.length === 4 && (
-        <div ref={photoStripRef} className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-full max-w-xs sm:max-w-sm animate-drop-in">
+        <div ref={photoStripRef} className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-[160px] animate-drop-in">
           <h2 className="text-center text-lg font-extrabold text-[#5F3451] mb-4">Your Strip</h2>
           <div className="flex flex-col items-center gap-2">
             {photos.map((photo, index) => (
