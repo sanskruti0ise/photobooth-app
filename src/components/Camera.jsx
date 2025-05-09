@@ -10,9 +10,12 @@ function Camera() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null);
-  const audioRef = useRef(new Audio("/photobooth-app/click-sound.mp3"));
+  const audioRef = useRef(new Audio("/click-sound.mp3"));
 
   const [isCapturing, setIsCapturing] = useState(false); // New state to manage camera activation
+
+  // Save the current scroll position
+  const savedScrollPosition = useRef(0);
 
   // Use effect to start and stop camera stream based on isCapturing state
   useEffect(() => {
@@ -106,6 +109,9 @@ function Camera() {
   };
 
   const resetStrip = () => {
+    // Save the current scroll position before resetting
+    savedScrollPosition.current = window.scrollY;
+
     setPhotos([]);
     setMessage("");
     setCountdown(null);
@@ -113,9 +119,15 @@ function Camera() {
     setSelectedFilter("");
     setFilterLocked(false);
     setIsCapturing(false); // Ensure camera is stopped when reset
+
+    // Scroll back to the saved position
+    window.scrollTo(0, savedScrollPosition.current);
   };
 
   const downloadStrip = async () => {
+    // Save the current scroll position before downloading
+    savedScrollPosition.current = window.scrollY;
+
     const stripCanvas = document.createElement("canvas");
     const imgElements = [];
 
@@ -149,6 +161,9 @@ function Camera() {
     link.download = "photo-strip.png";
     link.href = stripCanvas.toDataURL("image/png");
     link.click();
+
+    // Scroll back to the saved position after downloading
+    window.scrollTo(0, savedScrollPosition.current);
   };
 
   return (
