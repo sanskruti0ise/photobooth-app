@@ -135,7 +135,7 @@ function Camera() {
         <video
           ref={videoRef}
           autoPlay
-          className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
+          className={`rounded-xl shadow-xl w-full max-w-full max-h-[80vh] aspect-video border-4 sm:border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
         />
 
         {countdown !== null && (
