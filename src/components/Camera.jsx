@@ -227,5 +227,4 @@ function Camera() {
     </div>
   );
 }
-
 export default Camera;
