@@ -10,8 +10,9 @@ function Camera() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null); // Reference for the photo strip
-  //const audioRef = useRef(new Audio("/click-sound.mp3")); // Path to your click sound file
-  const audioRef = useRef(new Audio(`${process.env.PUBLIC_URL}/click-sound.mp3`));
+  const audioRef = useRef(new Audio("/click-sound.mp3")); // Path to your click sound file
+  //const audioRef = useRef(new Audio(`${process.env.PUBLIC_URL}/click-sound.mp3`));
+  
 
   
   useEffect(() => {
