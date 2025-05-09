@@ -8,7 +8,7 @@ function Camera() {
   const [countdown, setCountdown] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("");
-  const [filterLocked, setFilterLocked] = useState(false);
+  const [filterEnabled, setFilterEnabled] = useState(false); // NEW state
   const photoStripRef = useRef(null);
   const audioRef = useRef(new Audio("/photobooth-app/click-sound.mp3"));
 
@@ -24,15 +24,16 @@ function Camera() {
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
   const startPhotoStrip = async () => {
-    if (isRunning || !selectedFilter) return;
+    if (isRunning) return;
     setPhotos([]);
     setIsRunning(true);
 
     for (let i = 0; i < 4; i++) {
       setMessage("Get ready!");
+      setFilterEnabled(false);
       await delay(1000);
 
-      setFilterLocked(true); // lock before countdown
+      setFilterEnabled(true); // ✅ Filters enabled during countdown
 
       for (let sec = 3; sec > 0; sec--) {
         setMessage(sec.toString());
@@ -41,9 +42,9 @@ function Camera() {
       }
 
       setCountdown(null);
+      setFilterEnabled(false); // ✅ Lock during actual photo click
       takePhoto();
 
-      setFilterLocked(false); // unlock immediately after photo is clicked
       setMessage("📸 Photo clicked!");
       await delay(1000);
 
@@ -55,6 +56,7 @@ function Camera() {
 
     setMessage("All done!");
     setIsRunning(false);
+    setFilterEnabled(true); // ✅ Re-enable after all photos
 
     if (photoStripRef.current) {
       photoStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -79,7 +81,6 @@ function Camera() {
     ctx.drawImage(video, 0, 0);
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
-
     audioRef.current.play();
   };
 
@@ -89,7 +90,7 @@ function Camera() {
     setCountdown(null);
     setIsRunning(false);
     setSelectedFilter("");
-    setFilterLocked(false);
+    setFilterEnabled(false);
   };
 
   const downloadStrip = async () => {
@@ -156,31 +157,31 @@ function Camera() {
         )}
       </div>
 
-      {/* Filter Selection */}
+      {/* Filter Buttons */}
       <div className="flex gap-4 mt-3 flex-wrap justify-center">
         <button
           onClick={() => setSelectedFilter("sepia")}
-          disabled={isRunning && filterLocked}
+          disabled={!filterEnabled}
           className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${
-            isRunning && filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
+            !filterEnabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
           }`}
         >
           Sepia
         </button>
         <button
           onClick={() => setSelectedFilter("grayscale")}
-          disabled={isRunning && filterLocked}
+          disabled={!filterEnabled}
           className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${
-            isRunning && filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
+            !filterEnabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
           }`}
         >
           B&W
         </button>
         <button
           onClick={() => setSelectedFilter("")}
-          disabled={isRunning && filterLocked}
+          disabled={!filterEnabled}
           className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${
-            isRunning && filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
+            !filterEnabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
           }`}
         >
           Normal
@@ -189,7 +190,7 @@ function Camera() {
 
       <button
         onClick={startPhotoStrip}
-        disabled={isRunning || !selectedFilter}
+        disabled={isRunning}
         className="mt-2 px-6 py-2 bg-[#B899A8] text-white font-extrabold rounded-xl shadow-md hover:shadow-lg hover:brightness-110 transition duration-300"
       >
         📸 Start Photo Strip
@@ -197,7 +198,6 @@ function Camera() {
 
       <canvas ref={canvasRef} className="hidden" />
 
-      {/* Photo Strip Display */}
       {photos.length === 4 && (
         <div
           ref={photoStripRef}
