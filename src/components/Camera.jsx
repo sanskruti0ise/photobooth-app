@@ -135,6 +135,7 @@ function Camera() {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-[#F0E6D6] font-poppins pt-4 px-4">
+      
       <div className="relative flex flex-col items-center justify-center w-full max-w-md">
         <video
           ref={videoRef}
