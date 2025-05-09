@@ -152,7 +152,7 @@ function Camera() {
       </div>
 
       {/* Filter Selection */}
-      <div className="flex gap-4 mt-3 flex-wrap justify-center">
+      <div className="flex gap-4 mt-3 flex-wrap justify-center w-full max-w-md">
         <button
           onClick={() => setSelectedFilter("sepia")}
           disabled={filterLocked}
@@ -188,7 +188,7 @@ function Camera() {
 
       {/* Photo Strip Display */}
       {photos.length === 4 && (
-        <div ref={photoStripRef} className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-[160px] animate-drop-in">
+        <div ref={photoStripRef} className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-full max-w-xs sm:max-w-sm animate-drop-in">
           <h2 className="text-center text-lg font-extrabold text-[#5F3451] mb-4">Your Strip</h2>
           <div className="flex flex-col items-center gap-2">
             {photos.map((photo, index) => (
