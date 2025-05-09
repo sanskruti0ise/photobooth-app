@@ -21,6 +21,33 @@ function Camera() {
       .catch((err) => console.error("Camera error:", err));
   }, []);
 
+  useEffect(() => {
+    let stream;
+  
+    const getCameraStream = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current && stream && isCapturing) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        }
+      } catch (error) {
+        console.error('Error accessing webcam:', error);
+      }
+    };
+  
+    if (isCapturing) {
+      getCameraStream();
+    }
+  
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [isCapturing]); // 👈 this is key
+  
+
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
   const startPhotoStrip = async () => {
