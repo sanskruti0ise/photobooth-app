@@ -1,21 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { CameraIcon } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
+import { Button } from "../components/ui/button"; // ✅ Relative path
+import { CameraIcon, RotateCwIcon } from "lucide-react";
 
-const Camera = () => {
+const Camera = ({ onCapture }) => {
   const videoRef = useRef(null);
-  const [stream, setStream] = useState(null);
-  const [selectedFilter, setSelectedFilter] = useState("none");
+  const [facingMode, setFacingMode] = useState("user");
 
   useEffect(() => {
     const getCameraStream = async () => {
       try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode },
         });
-        setStream(mediaStream);
         if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
+          videoRef.current.srcObject = stream;
         }
       } catch (error) {
         console.error("Error accessing camera:", error);
@@ -25,43 +23,46 @@ const Camera = () => {
     getCameraStream();
 
     return () => {
-      // Cleanup
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+      if (videoRef.current?.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [stream]);
+  }, [facingMode]);
+
+  const handleCapture = () => {
+    const canvas = document.createElement("canvas");
+    const video = videoRef.current;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext("2d").drawImage(video, 0, 0);
+    const imageData = canvas.toDataURL("image/png");
+    onCapture(imageData);
+  };
+
+  const toggleCamera = () => {
+    setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100 space-y-6">
-      {/* Responsive Video Container */}
-      <div className="relative w-full max-w-md aspect-video rounded-xl overflow-hidden shadow-lg border-4 border-white bg-black">
+    <div className="flex flex-col items-center space-y-4">
+      <div className="w-full max-w-xs aspect-video rounded-lg overflow-hidden shadow-md border-2 border-gray-300">
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          muted
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-300 ${
-            selectedFilter === "sepia"
-              ? "filter sepia"
-              : selectedFilter === "grayscale"
-              ? "filter grayscale"
-              : ""
-          }`}
+          className="w-full h-full object-cover"
         />
       </div>
-
-      {/* Filter Buttons */}
-      <div className="flex gap-4">
-        <Button onClick={() => setSelectedFilter("none")}>Normal</Button>
-        <Button onClick={() => setSelectedFilter("sepia")}>Sepia</Button>
-        <Button onClick={() => setSelectedFilter("grayscale")}>Grayscale</Button>
+      <div className="flex space-x-4">
+        <Button onClick={handleCapture}>
+          <CameraIcon className="mr-2 h-4 w-4" />
+          Capture
+        </Button>
+        <Button variant="outline" onClick={toggleCamera}>
+          <RotateCwIcon className="mr-2 h-4 w-4" />
+          Switch Camera
+        </Button>
       </div>
-
-      {/* Capture Button */}
-      <Button size="lg" className="rounded-full p-6 bg-blue-600 text-white shadow-md hover:bg-blue-700">
-        <CameraIcon className="w-6 h-6" />
-      </Button>
     </div>
   );
 };
