@@ -8,22 +8,16 @@ function Camera() {
   const [countdown, setCountdown] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("");
-  const [filterEnabled, setFilterEnabled] = useState(false); // NEW state
+  const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null);
-  const audioRef = useRef(new Audio("/photobooth-app/click-sound.mp3"));
+  const audioRef = useRef(new Audio("/click-sound.mp3"));
 
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((stream) => {
-        videoRef.current.srcObject = stream;
-      })
-      .catch((err) => console.error("Camera error:", err));
-  }, []);
+  const [isCapturing, setIsCapturing] = useState(false); // New state to manage camera activation
 
+  // Use effect to start and stop camera stream based on isCapturing state
   useEffect(() => {
     let stream;
-  
+
     const getCameraStream = async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -32,35 +26,33 @@ function Camera() {
           videoRef.current.play();
         }
       } catch (error) {
-        console.error('Error accessing webcam:', error);
+        console.error("Error accessing webcam:", error);
       }
     };
-  
+
     if (isCapturing) {
       getCameraStream();
     }
-  
+
     return () => {
       if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach((track) => track.stop()); // Stop the stream when camera is not capturing
       }
     };
-  }, [isCapturing]); // 👈 this is key
-  
+  }, [isCapturing]);
 
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
   const startPhotoStrip = async () => {
-    if (isRunning) return;
+    if (isRunning || !selectedFilter) return;
     setPhotos([]);
     setIsRunning(true);
+    setFilterLocked(true);
+    setIsCapturing(true); // Start the camera stream when taking photos
 
     for (let i = 0; i < 4; i++) {
       setMessage("Get ready!");
-      setFilterEnabled(false);
       await delay(1000);
-
-      setFilterEnabled(true); // ✅ Filters enabled during countdown
 
       for (let sec = 3; sec > 0; sec--) {
         setMessage(sec.toString());
@@ -69,7 +61,6 @@ function Camera() {
       }
 
       setCountdown(null);
-      setFilterEnabled(false); // ✅ Lock during actual photo click
       takePhoto();
 
       setMessage("📸 Photo clicked!");
@@ -83,8 +74,9 @@ function Camera() {
 
     setMessage("All done!");
     setIsRunning(false);
-    setFilterEnabled(true); // ✅ Re-enable after all photos
+    setIsCapturing(false); // Stop the camera after photo strip is done
 
+    // Scroll to the photo strip
     if (photoStripRef.current) {
       photoStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -108,6 +100,8 @@ function Camera() {
     ctx.drawImage(video, 0, 0);
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
+
+    // Play the click sound
     audioRef.current.play();
   };
 
@@ -117,7 +111,8 @@ function Camera() {
     setCountdown(null);
     setIsRunning(false);
     setSelectedFilter("");
-    setFilterEnabled(false);
+    setFilterLocked(false);
+    setIsCapturing(false); // Ensure camera is stopped when reset
   };
 
   const downloadStrip = async () => {
@@ -134,10 +129,10 @@ function Camera() {
     const width = imgElements[0].width;
     const height = imgElements[0].height;
     stripCanvas.width = width + 40;
-    stripCanvas.height = height * 4 + 60;
+    stripCanvas.height = (height * 4) + 60;
 
     const ctx = stripCanvas.getContext("2d");
-    ctx.fillStyle = "#5F3451";
+    ctx.fillStyle = "#5F3451"; 
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
     imgElements.forEach((img, i) => {
@@ -158,18 +153,15 @@ function Camera() {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-[#F0E6D6] font-poppins pt-4 px-4">
+      
       <div className="relative flex flex-col items-center justify-center w-full max-w-md">
-        <video
-          ref={videoRef}
-          autoPlay
-          className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${
-            selectedFilter === "sepia"
-              ? "filter sepia"
-              : selectedFilter === "grayscale"
-              ? "filter grayscale"
-              : ""
-          }`}
-        />
+        {isCapturing && (
+          <video
+            ref={videoRef}
+            autoPlay
+            className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
+          />
+        )}
 
         {countdown !== null && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-6xl font-extrabold animate-ping">
@@ -184,32 +176,26 @@ function Camera() {
         )}
       </div>
 
-      {/* Filter Buttons */}
+      {/* Filter Selection */}
       <div className="flex gap-4 mt-3 flex-wrap justify-center">
         <button
           onClick={() => setSelectedFilter("sepia")}
-          disabled={!filterEnabled}
-          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${
-            !filterEnabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
-          }`}
+          disabled={filterLocked}
+          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
           Sepia
         </button>
         <button
           onClick={() => setSelectedFilter("grayscale")}
-          disabled={!filterEnabled}
-          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${
-            !filterEnabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
-          }`}
+          disabled={filterLocked}
+          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
           B&W
         </button>
         <button
           onClick={() => setSelectedFilter("")}
-          disabled={!filterEnabled}
-          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${
-            !filterEnabled ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
-          }`}
+          disabled={filterLocked}
+          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
           Normal
         </button>
@@ -217,7 +203,7 @@ function Camera() {
 
       <button
         onClick={startPhotoStrip}
-        disabled={isRunning}
+        disabled={isRunning || !selectedFilter}
         className="mt-2 px-6 py-2 bg-[#B899A8] text-white font-extrabold rounded-xl shadow-md hover:shadow-lg hover:brightness-110 transition duration-300"
       >
         📸 Start Photo Strip
@@ -225,14 +211,10 @@ function Camera() {
 
       <canvas ref={canvasRef} className="hidden" />
 
+      {/* Photo Strip Display */}
       {photos.length === 4 && (
-        <div
-          ref={photoStripRef}
-          className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-[160px] animate-drop-in"
-        >
-          <h2 className="text-center text-lg font-extrabold text-[#5F3451] mb-4">
-            Your Strip
-          </h2>
+        <div ref={photoStripRef} className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-[160px] animate-drop-in">
+          <h2 className="text-center text-lg font-extrabold text-[#5F3451] mb-4">Your Strip</h2>
           <div className="flex flex-col items-center gap-2">
             {photos.map((photo, index) => (
               <div
@@ -250,21 +232,19 @@ function Camera() {
 
           <div className="mt-4 text-center text-sm text-gray-600 font-medium">
             <p>Date: {new Date().toLocaleDateString()}</p>
+            <button
+              onClick={downloadStrip}
+              className="mt-2 px-4 py-1 bg-[#5F3451] text-white font-bold rounded-full"
+            >
+              Download
+            </button>
+            <button
+              onClick={resetStrip}
+              className="mt-2 px-4 py-1 bg-[#B899A8] text-white font-bold rounded-full"
+            >
+              Reset
+            </button>
           </div>
-
-          <button
-            onClick={resetStrip}
-            className="mt-6 w-full px-4 py-2 bg-[#B899A8] text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
-          >
-            🔄 Start Over
-          </button>
-
-          <button
-            onClick={downloadStrip}
-            className="mt-4 w-full px-4 py-2 bg-[#B899A8] text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
-          >
-            ⬇️ Download Strip
-          </button>
         </div>
       )}
     </div>
