@@ -80,28 +80,33 @@ function Camera() {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-
+  
     ctx.save();
     ctx.translate(width, 0);
     ctx.scale(-1, 1); // Flip horizontally to correct mirroring for the canvas photo
-
+  
+    // Apply filters directly to the canvas context
     if (selectedFilter === "sepia") {
       ctx.filter = "sepia(1)";
     } else if (selectedFilter === "grayscale") {
       ctx.filter = "grayscale(1)";
     } else {
-      ctx.filter = "none";
+      ctx.filter = "none";  // Reset filter if no selected filter
     }
-
+  
+    // Draw video frame onto the canvas
     ctx.drawImage(video, 0, 0, width, height);
     ctx.restore();
-
+  
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
-
-    // Now, play the sound ONLY when a photo is taken
-    audioRef.current.play();
+  
+    // Play audio on user interaction
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
   };
+  
 
   const resetStrip = () => {
     setPhotos([]);
