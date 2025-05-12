@@ -122,41 +122,53 @@ function Camera() {
   const downloadStrip = async () => {
     const stripCanvas = document.createElement("canvas");
     const imgElements = [];
-
+  
     for (let src of photos) {
       const img = new Image();
       img.src = src;
       await new Promise((res) => (img.onload = res));
       imgElements.push(img);
     }
-
+  
     const width = imgElements[0].width;
     const height = imgElements[0].height;
     stripCanvas.width = width + 40;
     stripCanvas.height = (height * 4) + 60;
-
+  
     const ctx = stripCanvas.getContext("2d");
     ctx.fillStyle = "#5F3451";
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
-
+  
     imgElements.forEach((img, i) => {
       const yPosition = i * (height + 10) + 20;
+  
+      // Apply the same filter to the images in the strip
+      ctx.save();
+      if (selectedFilter === "sepia") {
+        ctx.filter = "sepia(1)";
+      } else if (selectedFilter === "grayscale") {
+        ctx.filter = "grayscale(1)";
+      } else {
+        ctx.filter = "none";
+      }
+  
       ctx.drawImage(img, 20, yPosition);
+      ctx.restore();
     });
-
+  
     ctx.font = "bold 14px Poppins";
     ctx.fillStyle = "#fff";
     const date = new Date().toLocaleDateString();
     ctx.fillText(`Date: ${date}`, 20, height * 4 + 35);
-
+  
     const link = document.createElement("a");
     link.download = "photo-strip.png";
     link.href = stripCanvas.toDataURL("image/png");
     link.click();
-
+  
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
+  
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-[#F0E6D6] font-poppins pt-4 px-4">
       <div className="relative flex flex-col items-center justify-center w-full max-w-md">
