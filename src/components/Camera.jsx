@@ -160,9 +160,10 @@ function Camera() {
           playsInline
           className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 
             ${selectedFilter === "sepia" ? "filter sepia" : 
-              selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
+            selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
+            style={{ transform: "scaleX(1)" }} // ✅ Un-mirror the preview
         />
-
+        
         {countdown !== null && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-6xl font-extrabold animate-ping">
             {countdown}
