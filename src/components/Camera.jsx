@@ -181,6 +181,13 @@ function Camera() {
         >
           B&W
         </button>
+        <button
+          onClick={() => setSelectedFilter("")}
+          disabled={filterLocked}
+          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
+        >
+          Normal
+        </button>
       </div>
 
       <button
