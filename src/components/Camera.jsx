@@ -10,7 +10,7 @@ function Camera() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null);
-  const audioRef = useRef(new Audio("/click-sound.mp3"));
+  const audioRef = useRef(new Audio("/photobooth-app/click-sound.mp3"));
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
