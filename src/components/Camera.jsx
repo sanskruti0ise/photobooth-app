@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 
 function Camera() {
   const videoRef = useRef(null);
@@ -10,20 +10,33 @@ function Camera() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null);
-  const audioRef = useRef(new Audio("/photobooth-app/click-sound.mp3"));
-
-  useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then((stream) => {
-        videoRef.current.srcObject = stream;
-      })
-      .catch((err) => console.error("Camera error:", err));
-  }, []);
+  const audioRef = useRef(new Audio("/click-sound.mp3"));
+  const streamRef = useRef(null);
 
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      streamRef.current = stream;
+      videoRef.current.srcObject = stream;
+      await new Promise((res) => (videoRef.current.onloadedmetadata = res));
+    } catch (err) {
+      console.error("Camera error:", err);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
   const startPhotoStrip = async () => {
     if (isRunning || !selectedFilter) return;
+    await startCamera();
+
     setPhotos([]);
     setIsRunning(true);
     setFilterLocked(true);
@@ -52,6 +65,7 @@ function Camera() {
 
     setMessage("All done!");
     setIsRunning(false);
+    stopCamera();
 
     if (photoStripRef.current) {
       photoStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -87,7 +101,8 @@ function Camera() {
     setIsRunning(false);
     setSelectedFilter("");
     setFilterLocked(false);
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top after reset
+    stopCamera();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const downloadStrip = async () => {
@@ -125,7 +140,7 @@ function Camera() {
     link.href = stripCanvas.toDataURL("image/png");
     link.click();
 
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top after download
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -134,6 +149,7 @@ function Camera() {
         <video
           ref={videoRef}
           autoPlay
+          playsInline
           className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
         />
 
@@ -150,7 +166,6 @@ function Camera() {
         )}
       </div>
 
-      {/* Filter Selection */}
       <div className="flex gap-4 mt-3 flex-wrap justify-center">
         <button
           onClick={() => setSelectedFilter("sepia")}
