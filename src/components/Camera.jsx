@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 function Camera() {
   const videoRef = useRef(null);
@@ -14,6 +14,21 @@ function Camera() {
   const streamRef = useRef(null);
 
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
+  // For handling Safari audio playback
+  useEffect(() => {
+    const audio = audioRef.current;
+    const playAudio = () => {
+      audio.play().catch(() => {});
+    };
+
+    // Try to play audio when the component mounts (for Safari)
+    document.body.addEventListener("click", playAudio);
+
+    return () => {
+      document.body.removeEventListener("click", playAudio);
+    };
+  }, []);
 
   const startCamera = async () => {
     try {
