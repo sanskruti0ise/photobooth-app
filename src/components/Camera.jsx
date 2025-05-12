@@ -83,7 +83,7 @@ function Camera() {
 
     ctx.save();
     ctx.translate(width, 0);
-    ctx.scale(-1, 1); // Flip horizontally to correct mirroring
+    ctx.scale(-1, 1); // Flip horizontally to correct mirroring for the canvas photo
 
     if (selectedFilter === "sepia") {
       ctx.filter = "sepia(1)";
