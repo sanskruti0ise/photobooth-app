@@ -10,7 +10,7 @@ function Camera() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null);
-  const audioRef = useRef(new Audio("/photobooth-app/click-sound.mp3"));
+  const audioRef = useRef(new Audio("/click-sound.mp3"));
   const streamRef = useRef(null);
 
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -81,9 +81,9 @@ function Camera() {
     canvas.height = height;
     const ctx = canvas.getContext("2d");
 
-    ctx.save(); // Save context state
-    ctx.translate(width, 0); // Move to right edge
-    ctx.scale(-1, 1); // Flip horizontally
+    ctx.save();
+    ctx.translate(width, 0);
+    ctx.scale(-1, 1); // Flip horizontally to correct mirroring
 
     if (selectedFilter === "sepia") {
       ctx.filter = "sepia(1)";
@@ -94,7 +94,7 @@ function Camera() {
     }
 
     ctx.drawImage(video, 0, 0, width, height);
-    ctx.restore(); // Restore context to original state
+    ctx.restore();
 
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
@@ -158,7 +158,9 @@ function Camera() {
           ref={videoRef}
           autoPlay
           playsInline
-          className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
+          className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 
+            ${selectedFilter === "sepia" ? "filter sepia" : 
+              selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
         />
 
         {countdown !== null && (
@@ -178,14 +180,16 @@ function Camera() {
         <button
           onClick={() => setSelectedFilter("sepia")}
           disabled={filterLocked}
-          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
+          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 
+            ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
           Sepia
         </button>
         <button
           onClick={() => setSelectedFilter("grayscale")}
           disabled={filterLocked}
-          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
+          className={`px-4 py-2 bg-[#B899A8] text-white font-bold rounded-full shadow transition duration-200 
+            ${filterLocked ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
         >
           B&W
         </button>
