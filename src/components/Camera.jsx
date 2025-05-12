@@ -87,8 +87,7 @@ function Camera() {
     setIsRunning(false);
     setSelectedFilter("");
     setFilterLocked(false);
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top after reset
   };
 
   const downloadStrip = async () => {
@@ -126,7 +125,7 @@ function Camera() {
     link.href = stripCanvas.toDataURL("image/png");
     link.click();
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top after download
   };
 
   return (
