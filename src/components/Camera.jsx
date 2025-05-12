@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 
 function Camera() {
   const videoRef = useRef(null);
@@ -14,21 +14,6 @@ function Camera() {
   const streamRef = useRef(null);
 
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-
-  // For handling Safari audio playback
-  useEffect(() => {
-    const audio = audioRef.current;
-    const playAudio = () => {
-      audio.play().catch(() => {});
-    };
-
-    // Try to play audio when the component mounts (for Safari)
-    document.body.addEventListener("click", playAudio);
-
-    return () => {
-      document.body.removeEventListener("click", playAudio);
-    };
-  }, []);
 
   const startCamera = async () => {
     try {
@@ -67,7 +52,7 @@ function Camera() {
       }
 
       setCountdown(null);
-      takePhoto();
+      takePhoto(); // Taking photo and triggering the sound
 
       setMessage("📸 Photo clicked!");
       await delay(1000);
@@ -86,7 +71,7 @@ function Camera() {
       photoStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
- 
+
   const takePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -95,11 +80,11 @@ function Camera() {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-  
+
     ctx.save();
     ctx.translate(width, 0);
     ctx.scale(-1, 1); // Flip horizontally to correct mirroring for the canvas photo
-  
+
     if (selectedFilter === "sepia") {
       ctx.filter = "sepia(1)";
     } else if (selectedFilter === "grayscale") {
@@ -107,17 +92,17 @@ function Camera() {
     } else {
       ctx.filter = "none";
     }
-  
+
     ctx.drawImage(video, 0, 0, width, height);
     ctx.restore();
-  
+
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
-  
-    // Play the sound only when a photo is actually clicked
+
+    // Now, play the sound ONLY when a photo is taken
     audioRef.current.play();
   };
-  
+
   const resetStrip = () => {
     setPhotos([]);
     setMessage("");
