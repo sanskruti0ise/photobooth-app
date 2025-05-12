@@ -10,36 +10,15 @@ function Camera() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filterLocked, setFilterLocked] = useState(false);
   const photoStripRef = useRef(null);
-  const audioRef = useRef(new Audio("/photobooth-app/click-sound.mp3"));
+  const audioRef = useRef(new Audio("/click-sound.mp3"));
 
-  const [isCapturing, setIsCapturing] = useState(false); // New state to manage camera activation
-
-  // Use effect to start and stop camera stream based on isCapturing state
   useEffect(() => {
-    let stream;
-
-    const getCameraStream = async () => {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current && stream && isCapturing) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-        }
-      } catch (error) {
-        console.error("Error accessing webcam:", error);
-      }
-    };
-
-    if (isCapturing) {
-      getCameraStream();
-    }
-
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop()); // Stop the stream when camera is not capturing
-      }
-    };
-  }, [isCapturing]);
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        videoRef.current.srcObject = stream;
+      })
+      .catch((err) => console.error("Camera error:", err));
+  }, []);
 
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -48,7 +27,6 @@ function Camera() {
     setPhotos([]);
     setIsRunning(true);
     setFilterLocked(true);
-    setIsCapturing(true); // Start the camera stream when taking photos
 
     for (let i = 0; i < 4; i++) {
       setMessage("Get ready!");
@@ -74,9 +52,7 @@ function Camera() {
 
     setMessage("All done!");
     setIsRunning(false);
-    setIsCapturing(false); // Stop the camera after photo strip is done
 
-    // Scroll to the photo strip
     if (photoStripRef.current) {
       photoStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -101,7 +77,6 @@ function Camera() {
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
 
-    // Play the click sound
     audioRef.current.play();
   };
 
@@ -112,7 +87,8 @@ function Camera() {
     setIsRunning(false);
     setSelectedFilter("");
     setFilterLocked(false);
-    setIsCapturing(false); // Ensure camera is stopped when reset
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const downloadStrip = async () => {
@@ -132,7 +108,7 @@ function Camera() {
     stripCanvas.height = (height * 4) + 60;
 
     const ctx = stripCanvas.getContext("2d");
-    ctx.fillStyle = "#5F3451"; 
+    ctx.fillStyle = "#5F3451";
     ctx.fillRect(0, 0, stripCanvas.width, stripCanvas.height);
 
     imgElements.forEach((img, i) => {
@@ -149,19 +125,18 @@ function Camera() {
     link.download = "photo-strip.png";
     link.href = stripCanvas.toDataURL("image/png");
     link.click();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-[#F0E6D6] font-poppins pt-4 px-4">
-      
       <div className="relative flex flex-col items-center justify-center w-full max-w-md">
-        {isCapturing && (
-          <video
-            ref={videoRef}
-            autoPlay
-            className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
-          />
-        )}
+        <video
+          ref={videoRef}
+          autoPlay
+          className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 ${selectedFilter === "sepia" ? "filter sepia" : selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
+        />
 
         {countdown !== null && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-6xl font-extrabold animate-ping">
@@ -211,7 +186,6 @@ function Camera() {
 
       <canvas ref={canvasRef} className="hidden" />
 
-      {/* Photo Strip Display */}
       {photos.length === 4 && (
         <div ref={photoStripRef} className="mt-6 mb-10 bg-white px-4 pt-6 pb-4 rounded-lg shadow-2xl w-[160px] animate-drop-in">
           <h2 className="text-center text-lg font-extrabold text-[#5F3451] mb-4">Your Strip</h2>
@@ -232,19 +206,21 @@ function Camera() {
 
           <div className="mt-4 text-center text-sm text-gray-600 font-medium">
             <p>Date: {new Date().toLocaleDateString()}</p>
-            <button
-              onClick={downloadStrip}
-              className="mt-2 px-4 py-1 bg-[#5F3451] text-white font-bold rounded-full"
-            >
-              Download
-            </button>
-            <button
-              onClick={resetStrip}
-              className="mt-2 px-4 py-1 bg-[#B899A8] text-white font-bold rounded-full"
-            >
-              Reset
-            </button>
           </div>
+
+          <button
+            onClick={resetStrip}
+            className="mt-6 w-full px-4 py-2 bg-[#B899A8] text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
+          >
+            🔄 Start Over
+          </button>
+
+          <button
+            onClick={downloadStrip}
+            className="mt-4 w-full px-4 py-2 bg-[#B899A8] text-white font-bold rounded-xl shadow hover:shadow-lg hover:brightness-110 transition duration-300"
+          >
+            ⬇️ Download Strip
+          </button>
         </div>
       )}
     </div>
