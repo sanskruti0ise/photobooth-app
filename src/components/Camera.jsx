@@ -86,7 +86,7 @@ function Camera() {
       photoStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
-
+ 
   const takePhoto = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -95,11 +95,11 @@ function Camera() {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext("2d");
-
+  
     ctx.save();
     ctx.translate(width, 0);
     ctx.scale(-1, 1); // Flip horizontally to correct mirroring for the canvas photo
-
+  
     if (selectedFilter === "sepia") {
       ctx.filter = "sepia(1)";
     } else if (selectedFilter === "grayscale") {
@@ -107,16 +107,17 @@ function Camera() {
     } else {
       ctx.filter = "none";
     }
-
+  
     ctx.drawImage(video, 0, 0, width, height);
     ctx.restore();
-
+  
     const image = canvas.toDataURL("image/png");
     setPhotos((prev) => [...prev, image]);
-
+  
+    // Play the sound only when a photo is actually clicked
     audioRef.current.play();
   };
-
+  
   const resetStrip = () => {
     setPhotos([]);
     setMessage("");
