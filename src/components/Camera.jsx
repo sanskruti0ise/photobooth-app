@@ -161,7 +161,7 @@ function Camera() {
           className={`rounded-xl shadow-xl w-full h-auto border-8 border-white object-cover transition-all duration-300 
             ${selectedFilter === "sepia" ? "filter sepia" : 
             selectedFilter === "grayscale" ? "filter grayscale" : ""}`}
-          style={{ transform: "scaleX(1)" }} // ✅ Un-mirror the preview
+          style={{ transform: "scaleX(-1)" }} // ✅ Un-mirror the preview
         />
 
         {countdown !== null && (
