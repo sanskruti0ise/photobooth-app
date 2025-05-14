@@ -1,12 +1,31 @@
-# React + Vite
+# 📸 Retro Photo Booth
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fun, retro-style photo booth web app! Capture 4-frame selfies, apply vintage filters, and download your photo strip – all in your browser.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- 📷 Take 4 quick photos using your device camera  
+- 🎨 Apply filters: None, Sepia, or Grayscale  
+- 💾 Download the final photo strip as an image  
+- 📱 Works on both mobile and desktop devices
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 📱 How to Use
+
+1. Open the app in your browser  
+2. Tap **Start** and allow camera access  
+3. Tap the capture button to take photos  
+4. Choose a **filter** (None, Sepia, Grayscale)  
+5. Tap **Download Strip** to save your filtered image  
+
+---
+
+## 🔗 Demo
+
+👉 [Live Demo](https://sanskruti0ise.github.io/photobooth-app/)
+
+---
+
