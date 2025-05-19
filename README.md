@@ -7,7 +7,7 @@ A fun, retro-style photo booth web app! Capture 4-frame selfies, apply vintage f
 ## 🚀 Features
 
 - 📷 Take 4 quick photos using your device camera  
-- 🎨 Apply filters: None, Sepia, or Grayscale  
+- 🎨 Apply filters: Sepia, or Grayscale  
 - 💾 Download the final photo strip as an image  
 - 📱 Works on both mobile and desktop devices
 
